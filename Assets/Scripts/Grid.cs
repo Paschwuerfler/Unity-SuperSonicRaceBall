@@ -32,7 +32,7 @@ public class Grid : MonoBehaviour
     public int seed;
 
 
-   
+
 
     /// Add a context menu named "Do Something" in the inspector
     /// of the attached script.
@@ -42,10 +42,10 @@ public class Grid : MonoBehaviour
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
         CreateShape();
-      
-       
-        Debug.Log("Genned Mesh");
+
+        UpdateMesh();
     }
+
 
 
     void Start()
@@ -53,7 +53,7 @@ public class Grid : MonoBehaviour
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
         CreateShape();
-      
+
         UpdateMesh();
     }
 
@@ -180,10 +180,7 @@ public class Grid : MonoBehaviour
 
     }
 
-    private void Update()
-    {
-       
-    }
+
 
     void UpdateMesh()
     {
@@ -214,7 +211,7 @@ public class Grid : MonoBehaviour
 
     void fillco(int x, int z, int g)
     {
-
+        return;
         colors[z * zSize + x] = fillgra.Evaluate(Mathf.InverseLerp(0f,10f,(float)g));
         
 
