@@ -51,11 +51,19 @@ public class TestGrid : MonoBehaviour
     void Start()
     {
         mesh = new Mesh();
+        Debug.Log("Created Mesh");
         GetComponent<MeshFilter>().mesh = mesh;
         CreateShape();
-        StartCoroutine(fillco(fillstartx,fillstartz,5));
+
+        //StartCoroutine(fillco(fillstartx,fillstartz,5));
+        StartCoroutine(fillnum());
+        Debug.LogError("Coroutine was called");
+
+
         UpdateMesh();
+        Debug.Log("Mesh was Updated");
     }
+
 
     void CreateShape()
     {
@@ -185,6 +193,8 @@ public class TestGrid : MonoBehaviour
     private void Update()
     {
         UpdateMesh();
+
+
     }
 
 
@@ -198,63 +208,117 @@ public class TestGrid : MonoBehaviour
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         // add collider! 
-        meshCollider = new MeshCollider();
-        meshCollider.sharedMesh = mesh;
+        //meshCollider = new MeshCollider();
+        //meshCollider.sharedMesh = mesh;
+        //Debug.Log("UpdateMesh()");
     }
-    /*
+
+
     private void OnDrawGizmos()
     {
         if (vertices == null)
             return;
-
+        Debug.Log("gizmos");
         for (int i = 0; i < vertices.Length; i++)
         {
-            Gizmos.DrawSphere(vertices[i], .1f);
+            
+            Gizmos.color = colors[i];
+            Gizmos.DrawSphere(vertices[i], .3f);
         }
     }
 
-    */
+
 
 
     IEnumerator fillco(int x, int z, int g)
     {
-        
-        colors[z * zSize + x] = fillgra.Evaluate(Mathf.InverseLerp(0f,10f,(float)g));
 
+        colors[x * xSize + z] = fillstart;
+        Debug.LogError(z * zSize + x + "was colored! x: " + x + " z: " + z);
 
         if (g == 0)
+        {
+
+            Debug.LogError("coroutine ended");
             yield return null;
+        }
         else
 
         if ((x == 0) || (x == xSize - 1))
+        {
+            Debug.LogError("coroutine ended");
             yield return null;
+        }
+
         else
         if ((z == 0) || (z == zSize - 1))
+        {
+            Debug.LogError("coroutine ended");
             yield return null;
+        }
         else
         {
 
-            yield return new WaitForSeconds(3f);
+
 
             if (colors[z * zSize + x + 1] == even)
-                fillco(z, x + 1, g - 1);
+            {
+                yield return new WaitForSeconds(3f);
+                colors[z * zSize + x] = fillgra.Evaluate(Mathf.InverseLerp(0f, 10f, (float)g));
+                StartCoroutine(fillco(z, x + 1, g - 1));
+            }
+
 
             if (colors[z * zSize + x - 1] == even)
-                fillco(z, x - 1, g - 1);
+            {
+                yield return new WaitForSeconds(3f);
+                colors[z * zSize + x] = fillgra.Evaluate(Mathf.InverseLerp(0f, 10f, (float)g));
+                StartCoroutine(fillco(z, x - 1, g - 1));
+            }
 
             if (colors[(z + 1) * zSize + x] == even)
-                fillco(z + 1, x, g - 1);
+            {
+                yield return new WaitForSeconds(3f);
+                colors[z * zSize + x] = fillgra.Evaluate(Mathf.InverseLerp(0f, 10f, (float)g));
+                StartCoroutine(fillco(z + 1, x, g - 1));
+            }
 
             if (colors[(z - 1) * zSize + x] == even)
-                fillco(z - 1, x, g - 1);
+            {
+                yield return new WaitForSeconds(3f);
+                colors[z * zSize + x] = fillgra.Evaluate(Mathf.InverseLerp(0f, 10f, (float)g));
+                StartCoroutine(fillco(z - 1, x, g - 1));
+            }
 
         }
-            
-
-
-
-
     }
+
+
+
+
+        IEnumerator fillnum()
+        {
+
+            for (int z = 0; z < zSize; z++)
+            {
+                for (int x = 0; x < xSize; x++)
+                {
+
+
+
+                    colors[z*zSize + x] = fillstart;
+                    yield return new WaitForSeconds(.1f);
+
+
+                }
+            }
+
+
+
+
+
+
+        }
 
     
 }

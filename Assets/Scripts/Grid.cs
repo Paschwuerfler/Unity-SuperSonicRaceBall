@@ -194,7 +194,7 @@ public class Grid : MonoBehaviour
         meshCollider = new MeshCollider();
         meshCollider.sharedMesh = mesh;
     }
-    /*
+
     private void OnDrawGizmos()
     {
         if (vertices == null)
@@ -202,11 +202,11 @@ public class Grid : MonoBehaviour
 
         for (int i = 0; i < vertices.Length; i++)
         {
-            Gizmos.DrawSphere(vertices[i], .1f);
+            Gizmos.DrawSphere(vertices[i], .3f);
         }
     }
 
-    */
+
 
 
     void fillco(int x, int z, int g)
