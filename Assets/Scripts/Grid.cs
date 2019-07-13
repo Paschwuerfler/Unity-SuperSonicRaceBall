@@ -243,7 +243,17 @@ public class Grid : MonoBehaviour
 
 
 
+
+
     }
 
-    
+
+    int convertxy(int x, int z)
+    {
+        Debug.Log("converted x:" + x + " z:" + z + " to:" + (z * (zSize + 1)) + x + "with xSize:" + xSize + " zSize:" + zSize);
+        return (z * (zSize + 1)) + x;
+
+    }
+
+
 }

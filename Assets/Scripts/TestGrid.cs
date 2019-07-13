@@ -19,13 +19,24 @@ public class TestGrid : MonoBehaviour
 
     Vector3[] vertices;
     int[] triangles;
+
     Color[] colors;
     public float maxheight = 0;
     public float minheight = 0;
     public Color even;
     public Color fillstart;
+
     public int fillstartx;
     public int fillstartz;
+
+    public int ccalls = 0;
+    public int fcalls = 0;
+    public int cfcalls = 0;
+    public int endedfcalls = 0;
+
+    public int iterations;
+    public float delay;
+
 
     public float tolerance = 1;
     MeshCollider meshCollider;
@@ -55,7 +66,7 @@ public class TestGrid : MonoBehaviour
         GetComponent<MeshFilter>().mesh = mesh;
         CreateShape();
 
-        StartCoroutine(fillco(fillstartx,fillstartz,5));
+        StartCoroutine(fillco(fillstartx,fillstartz,iterations));
         //StartCoroutine(fillnum());
         Debug.LogError("Coroutine was called");
 
@@ -192,6 +203,18 @@ public class TestGrid : MonoBehaviour
 
     private void Update()
     {
+
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
+
+        fillstartx += (int)moveHorizontal;
+        fillstartz += (int)moveVertical;
+
+        colors[convertxy(fillstartx, fillstartz)] = fillstart;
+
+
+
+
         UpdateMesh();
 
 
@@ -223,6 +246,7 @@ public class TestGrid : MonoBehaviour
             
             Gizmos.color = colors[i];
             Gizmos.DrawSphere(vertices[i], .3f);
+            Debug.Log("Draw Sphere at" + vertices[i] + "with color " + colors[i]);
         }
     }
 
@@ -231,65 +255,77 @@ public class TestGrid : MonoBehaviour
 
     IEnumerator fillco(int x, int z, int g)
     {
-
-        colors[convertxy(x, z)] = fillstart;
-        Debug.LogError(convertxy(x, z) + "was colored! x: " + x + " z: " + z);
-
-        if (g == 0)
+        fcalls++;
+        int conxy = convertxy(x, z);
+        if (colors[conxy] != even)
         {
-
-            Debug.LogError("coroutine ended");
-            yield return null;
-        }
-        else
-
-        if ((x == 0) || (x == xSize - 1))
-        {
-            Debug.LogError("coroutine ended");
-            yield return null;
-        }
-
-        else
-        if ((z == 0) || (z == zSize - 1))
-        {
-            Debug.LogError("coroutine ended");
+            cfcalls++;
+            // Debug.LogError("coroutine ended");
             yield return null;
         }
         else
         {
 
+            colors[conxy] = fillstart;
+            //Debug.LogError(convertxy(x, z) + "was colored! x: " + x + " z: " + z);
 
-
-            if (colors[convertxy(x, z) + 1] == even)
+            if (g == 0)
             {
-                yield return new WaitForSeconds(3f);
-                colors[convertxy(x, z)] = fillgra.Evaluate(Mathf.InverseLerp(0f, 10f, (float)g));
-                StartCoroutine(fillco(z, x + 1, g - 1));
+
+                // Debug.LogError("coroutine ended");
+                yield return null;
+            }
+            else
+
+            if ((x == 0) || (x == xSize - 1))
+            {
+                //Debug.LogError("coroutine ended");
+                yield return null;
             }
 
-
-            if (colors[convertxy(x - 1, z)] == even)
+            else
+            if ((z == 0) || (z == zSize - 1))
             {
-                yield return new WaitForSeconds(3f);
-                colors[convertxy(x, z)] = fillgra.Evaluate(Mathf.InverseLerp(0f, 10f, (float)g));
-                StartCoroutine(fillco(z, x - 1, g - 1));
+                //Debug.LogError("coroutine ended");
+                yield return null;
             }
-
-            if (colors[convertxy(x, z + 1)] == even)
+            else
             {
-                yield return new WaitForSeconds(3f);
-                colors[convertxy(x, z)] = fillgra.Evaluate(Mathf.InverseLerp(0f, 10f, (float)g));
-                StartCoroutine(fillco(z + 1, x, g - 1));
-            }
 
-            if (colors[convertxy(x, z - 1)] == even)
-            {
-                yield return new WaitForSeconds(3f);
-                colors[convertxy(x, z)] = fillgra.Evaluate(Mathf.InverseLerp(0f, 10f, (float)g));
-                StartCoroutine(fillco(z - 1, x, g - 1));
-            }
 
+
+                if (colors[conxy + 1] == even)
+                {
+                    yield return new WaitForSeconds(delay);
+                    colors[conxy] = fillgra.Evaluate(Mathf.InverseLerp(0f, (float)iterations, (float)g));
+                    StartCoroutine(fillco(z, x + 1, g - 1));
+                }
+
+
+                if (colors[conxy - 1] == even)
+                {
+                    yield return new WaitForSeconds(delay);
+                    colors[conxy] = fillgra.Evaluate(Mathf.InverseLerp(0f, (float)iterations, (float)g));
+                    StartCoroutine(fillco(z, x - 1, g - 1));
+                }
+
+                if (colors[convertxy(x, z + 1)] == even)
+                {
+                    yield return new WaitForSeconds(delay);
+                    colors[conxy] = fillgra.Evaluate(Mathf.InverseLerp(0f, (float)iterations, (float)g));
+                    StartCoroutine(fillco(z + 1, x, g - 1));
+                }
+
+                if (colors[convertxy(x, z - 1)] == even)
+                {
+                    yield return new WaitForSeconds(delay);
+                    colors[conxy] = fillgra.Evaluate(Mathf.InverseLerp(0f, (float)iterations, (float)g));
+                    StartCoroutine(fillco(z - 1, x, g - 1));
+                }
+
+            }
         }
+        endedfcalls++;
     }
 
 
@@ -323,8 +359,10 @@ public class TestGrid : MonoBehaviour
 
     int convertxy(int x , int z)
     {
-        Debug.Log("converted x:" + x + " z:" + z + " to:" + (z * (zSize + 1)) + x + "with xSize:" + xSize + " zSize:" + zSize  );
+        //Debug.Log("converted x:" + x + " z:" + z + " to:" + (z * (zSize + 1)) + x + "with xSize:" + xSize + " zSize:" + zSize  );
+        ccalls++;
         return (z * (zSize + 1)) + x;
+        
 
     }
 
