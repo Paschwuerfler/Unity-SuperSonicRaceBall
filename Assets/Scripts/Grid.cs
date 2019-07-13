@@ -126,7 +126,7 @@ public class Grid : MonoBehaviour
                 {
 
 
-                    float height = Mathf.InverseLerp(0, zSize * xSize, (float)(z * zSize + x));
+                    float height = Mathf.InverseLerp(0, zSize * xSize, (float)(convertxy(x, z)));
                     colors[i] = gradient.Evaluate(height);
                 }
                 catch {
@@ -144,18 +144,18 @@ public class Grid : MonoBehaviour
         {
             for (int x = 1; x < xSize; x++)
             {
-                if (Mathf.Abs(vertices[z * zSize + x].y - vertices[z * zSize + x + 1].y) < tolerance)
-                    if (Mathf.Abs(vertices[z * zSize + x].y - vertices[z * zSize + x - 1].y) < tolerance)
-                        if (Mathf.Abs(vertices[z * zSize + x].y - vertices[(z - 1) * zSize + x + 1].y) < tolerance)
-                            if (Mathf.Abs(vertices[z * zSize + x].y - vertices[(z + 1) * zSize + x + 1].y) < tolerance)
+                if (Mathf.Abs(vertices[convertxy(x, z)].y - vertices[convertxy(x, z) + 1].y) < tolerance)
+                    if (Mathf.Abs(vertices[convertxy(x, z)].y - vertices[convertxy(x, z) - 1].y) < tolerance)
+                        if (Mathf.Abs(vertices[convertxy(x, z)].y - vertices[convertxy(x, z - 1)+ 1].y) < tolerance)
+                            if (Mathf.Abs(vertices[convertxy(x, z)].y - vertices[convertxy(x, z - 1)+ 1].y) < tolerance)
                             {
                                
-                                colors[z * zSize + x] = even;
+                                colors[convertxy(x, z)] = even;
                           
 
 
-                                colors[z * zSize + x + 1] = even;
-                                colors[z * zSize + x - 1] = even;
+                                colors[convertxy(x, z) + 1] = even;
+                                colors[convertxy(x, z) - 1] = even;
                                 colors[(z + 1) * zSize + x] = even;
                                 colors[(z - 1) * zSize + x] = even;
                             }
@@ -170,7 +170,7 @@ public class Grid : MonoBehaviour
             {
 
 
-                //if (colors[z * zSize + x] == even)
+                //if (colors[convertxy(x, z)] == even)
                     //fillco(x, z, 10);                      
             }
         }
@@ -212,7 +212,7 @@ public class Grid : MonoBehaviour
     void fillco(int x, int z, int g)
     {
         return;
-        colors[z * zSize + x] = fillgra.Evaluate(Mathf.InverseLerp(0f,10f,(float)g));
+        colors[convertxy(x, z)] = fillgra.Evaluate(Mathf.InverseLerp(0f,10f,(float)g));
         
 
         if (g == 0)
@@ -225,10 +225,10 @@ public class Grid : MonoBehaviour
 
         try
         {
-            if (colors[z * zSize + x + 1] == even)
+            if (colors[convertxy(x, z) + 1] == even)
                 fillco(z, x + 1, g - 1);
 
-            if (colors[z * zSize + x - 1] == even)
+            if (colors[convertxy(x, z) - 1] == even)
                 fillco(z, x - 1, g - 1);
 
             if (colors[(z + 1) * zSize + x] == even)
