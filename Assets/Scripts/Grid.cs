@@ -11,31 +11,32 @@ public class Grid : MonoBehaviour
     public int xSize = 20;
     public int zSize = 20;
 
-    public float[] octaveFrequencies = { 10,9,8,7,6,5,4,3,2,1 };
-    public float[] octaveAmplitudes = { 1,2,3,4,5,6,7,8,9,10 };
+    public float[] octaveFrequencies;  //terrain generation. should be filled with example values in future
+    public float[] octaveAmplitudes;
 
-    public Gradient gradient;
-    public Gradient fillgra;
+    public Gradient gradient; //gradient based on height
+    public Gradient fillgra; //gradient for filling in path sections
 
-    Vector3[] vertices;
+    Vector3[] vertices; //mesh gen
     int[] triangles;
     Color[] colors;
     public float maxheight = 0;
     public float minheight = 0;
-    public Color even;
-    public Color fillstart;
+    public Color even; //color for paths
+    public Color fillstart; //debugging (not really in use rn)
     public int fillstartx;
     public int fillstartz;
 
-    public float tolerance = 1;
-    MeshCollider meshCollider;
-    public int seed;
+    public float tolerance = 1; //tolerance for paths to appear
+    MeshCollider meshCollider; //this doesnt fucking work, but sohuld establish collision with player in future
+    public int seed; //ofset for perlin noise for "random" terrain
 
 
 
 
-    /// Add a context menu named "Do Something" in the inspector
+    /// Add a context menu named "GenMesh" in the inspector
     /// of the attached script.
+    /// Has a tendency to crash the whole editor, use with cation, only after establishing stuff works in playmode
     [ContextMenu("GenMesh")]
     void GenMesh()
     {
@@ -52,28 +53,28 @@ public class Grid : MonoBehaviour
     {
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
-        CreateShape();
+        CreateShape(); 
 
         UpdateMesh();
     }
 
-    void CreateShape()
+    void CreateShape()//creates (and colors) random terrain
     {
-        vertices = new Vector3[(xSize + 1) * (zSize + 1)];
+        vertices = new Vector3[(xSize + 1) * (zSize + 1)]; //creates size + 1 for roght number of "squares"
 
 
-        for (int i = 0, z = 0; z <= zSize; z++)
+        for (int i = 0, z = 0; z <= zSize; z++)  //creates perlin-noise terran heights)
         {
             for (int x = 0; x <= xSize; x++)
             {
                 float y = 0;
-                for (int o = 0; o < octaveFrequencies.Length; o++)
+                for (int o = 0; o < octaveFrequencies.Length; o++) //octave generation
                     y += octaveAmplitudes[o] * Mathf.PerlinNoise(
                          octaveFrequencies[o] * (x + seed) + .3f,
                          octaveFrequencies[o] * (z + seed) + .3f) * 2f;
 
 
-                if (y > maxheight)
+                if (y > maxheight)  //sets min and maxheight for right coloring
                     maxheight = y;
                 if (y < minheight)
                     minheight = y;
@@ -84,14 +85,14 @@ public class Grid : MonoBehaviour
             }
         }
 
-        mesh.vertices = vertices;
+        mesh.vertices = vertices; //also done in update so why here ?
 
         int vert = 0;
         int tris = 0;
 
         triangles = new int[6 * xSize * zSize];
 
-        for (int z = 0; z < zSize; z++)
+        for (int z = 0; z < zSize; z++) //fills in connectios btween verts
         {
 
 
@@ -113,11 +114,11 @@ public class Grid : MonoBehaviour
             vert++;
         }
 
-        colors = new Color[vertices.Length];
+        colors = new Color[vertices.Length]; //sure this is the right length ?
 
 
 
-        for (int i = 0, z = 0; z <= zSize; z++)
+        for (int i = 0, z = 0; z <= zSize; z++)  //coloring based on height of map
         {
             for (int x = 0; x <= xSize; x++)
             {
@@ -140,14 +141,14 @@ public class Grid : MonoBehaviour
             }
         }
 
-        for (int z = 1; z < zSize; z++)
+        for (int z = 1; z < zSize; z++)  //path coloring based on height of 4 adjcent quares
         {
             for (int x = 1; x < xSize; x++)
             {
                 if (Mathf.Abs(vertices[convertxy(x, z)].y - vertices[convertxy(x, z) + 1].y) < tolerance)
                     if (Mathf.Abs(vertices[convertxy(x, z)].y - vertices[convertxy(x, z) - 1].y) < tolerance)
                         if (Mathf.Abs(vertices[convertxy(x, z)].y - vertices[convertxy(x, z - 1)+ 1].y) < tolerance)
-                            if (Mathf.Abs(vertices[convertxy(x, z)].y - vertices[convertxy(x, z - 1)+ 1].y) < tolerance)
+                            if (Mathf.Abs(vertices[convertxy(x, z)].y - vertices[convertxy(x, z - 1)+ 1].y) < tolerance) 
                             {
                                
                                 colors[convertxy(x, z)] = even;
@@ -182,7 +183,7 @@ public class Grid : MonoBehaviour
 
 
 
-    void UpdateMesh()
+    void UpdateMesh() //carries over changes to actual mesh 
     {
         mesh.Clear();
         mesh.vertices = vertices;
@@ -195,7 +196,7 @@ public class Grid : MonoBehaviour
         meshCollider.sharedMesh = mesh;
     }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmos() 
     {
         if (vertices == null)
             return;
@@ -248,7 +249,7 @@ public class Grid : MonoBehaviour
     }
 
 
-    int convertxy(int x, int z)
+    int convertxy(int x, int z) //converty xy coordinates to verticy position in mesh 
     {
         Debug.Log("converted x:" + x + " z:" + z + " to:" + (z * (zSize + 1)) + x + "with xSize:" + xSize + " zSize:" + zSize);
         return (z * (zSize + 1)) + x;
