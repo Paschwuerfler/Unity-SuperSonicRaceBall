@@ -122,12 +122,12 @@ public class Grid : MonoBehaviour
         {
             for (int x = 0; x <= xSize; x++)
             {
-                //float height = Mathf.InverseLerp(minheight , maxheight, vertices[i].y);
+                float height = Mathf.InverseLerp(minheight , maxheight, vertices[i].y);
                 try
                 {
 
 
-                    float height = Mathf.InverseLerp(0, zSize * xSize, (float)(convertxy(x, z)));
+                    //float height = Mathf.InverseLerp(0, zSize * xSize, (float)(convertxy(x, z)));
                     colors[i] = gradient.Evaluate(height);
                 }
                 catch {
