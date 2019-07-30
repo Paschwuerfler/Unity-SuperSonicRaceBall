@@ -41,8 +41,11 @@ public class Grid : MonoBehaviour
     void GenMesh()
     {
         mesh = new Mesh();
+        Debug.LogError("Created Mesh");
         GetComponent<MeshFilter>().mesh = mesh;
+        Debug.LogError("Got Meshfilter");
         CreateShape();
+        Debug.LogError("Created Shape");
 
         UpdateMesh();
     }
@@ -59,7 +62,9 @@ public class Grid : MonoBehaviour
     }
 
     void CreateShape()//creates (and colors) random terrain
+
     {
+        Debug.LogError("Creating Shape");
         vertices = new Vector3[(xSize + 1) * (zSize + 1)]; //creates size + 1 for roght number of "squares"
 
 
@@ -85,6 +90,8 @@ public class Grid : MonoBehaviour
             }
         }
 
+        Debug.LogError("Created Heights" +
+            ""); 
         mesh.vertices = vertices; //also done in update so why here ?
 
         int vert = 0;
@@ -114,6 +121,8 @@ public class Grid : MonoBehaviour
             vert++;
         }
 
+        Debug.LogError("Filled Tris");
+
         colors = new Color[vertices.Length]; //sure this is the right length ?
 
 
@@ -123,16 +132,10 @@ public class Grid : MonoBehaviour
             for (int x = 0; x <= xSize; x++)
             {
                 float height = Mathf.InverseLerp(minheight , maxheight, vertices[i].y);
-                try
-                {
+               //float height = Mathf.InverseLerp(0, zSize * xSize, (float)(convertxy(x, z)));
+               colors[i] = gradient.Evaluate(height);
+                
 
-
-                    //float height = Mathf.InverseLerp(0, zSize * xSize, (float)(convertxy(x, z)));
-                    colors[i] = gradient.Evaluate(height);
-                }
-                catch {
-                    return;
-                }
 
                 
                 i++;
@@ -140,6 +143,8 @@ public class Grid : MonoBehaviour
                 
             }
         }
+
+        Debug.LogError("Created Color");
 
         for (int z = 1; z < zSize; z++)  //path coloring based on height of 4 adjcent quares
         {
@@ -165,6 +170,8 @@ public class Grid : MonoBehaviour
             }
         }
 
+        Debug.LogError("Created Path");
+
         for (int z = 1; z < zSize; z++)
         {
             for (int x = 1; x < xSize; x++)
@@ -185,6 +192,7 @@ public class Grid : MonoBehaviour
 
     void UpdateMesh() //carries over changes to actual mesh 
     {
+        Debug.LogError("Updating.....");
         mesh.Clear();
         mesh.vertices = vertices;
         mesh.triangles = triangles;
@@ -192,8 +200,9 @@ public class Grid : MonoBehaviour
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         // add collider! 
-        meshCollider = new MeshCollider();
-        meshCollider.sharedMesh = mesh;
+        //meshCollider = new MeshCollider();
+        //meshCollider.sharedMesh = mesh;
+        Debug.LogError("Updated......");
     }
 
     private void OnDrawGizmos() 
@@ -251,7 +260,7 @@ public class Grid : MonoBehaviour
 
     int convertxy(int x, int z) //converty xy coordinates to verticy position in mesh 
     {
-        Debug.Log("converted x:" + x + " z:" + z + " to:" + (z * (zSize + 1)) + x + "with xSize:" + xSize + " zSize:" + zSize);
+       // Debug.Log("converted x:" + x + " z:" + z + " to:" + (z * (zSize + 1)) + x + "with xSize:" + xSize + " zSize:" + zSize);
         return (z * (zSize + 1)) + x;
 
     }
